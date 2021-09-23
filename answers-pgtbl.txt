@@ -1,0 +1,6 @@
+Speed up system calls:
+fstat(). In fact, all system calls involving reading data structures can be speed up by sharing data.
+Print a page table:
+page 0 contains text and data, and page2 contains stack. 
+No, the user code couldn't read/write page1.
+The third to last page contains one page of heap.
