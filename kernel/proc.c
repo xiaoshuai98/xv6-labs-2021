@@ -141,6 +141,9 @@ found:
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
 
+  memset(&p->tf4alarm, 0, sizeof(p->tf4alarm));
+  p->ticks = 0;
+
   return p;
 }
 

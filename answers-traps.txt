@@ -1,0 +1,6 @@
+a1, a2. register a2 holds 13 in main's call to printf.
+26, 14
+630
+38
+He110 World 0x726c6400 No
+random value. printf() requires register a3 as the third parameter, but we did not provide the third parameter, so the value of register a3 is illegal.
