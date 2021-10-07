@@ -77,17 +77,18 @@ usertrap(void)
       goto err;
     }
 
-    printf("%p\n", va);
-    uint64 flags = PTE_FLAGS(*pte);
-    flags = ((flags & ~PTE_COW) | PTE_W);
-    uint64 pa = PTE2PA(*pte);
+    // printf("%p\n", va);
     char *mem;
     if ((mem = kalloc()) == 0) {
       p->killed = 1;
       goto err;
     }
+    uint64 flags = PTE_FLAGS(*pte);
+    flags = ((flags & ~PTE_COW) | PTE_W);
+    uint64 pa = PTE2PA(*pte);
+    va = PGROUNDDOWN(va);
     memmove((void*)mem, (void*)pa, PGSIZE);
-    uvmunmap(p->pagetable, PGROUNDDOWN(va), 1, 1);
+    uvmunmap(p->pagetable, va, 1, 1);
     if (mappages(p->pagetable, va, PGSIZE, (uint64)mem, flags) < 0) {
       kfree((void*)mem);
       goto err;
