@@ -65,6 +65,33 @@ usertrap(void)
     intr_on();
 
     syscall();
+  } else if (r_scause() == 15) {
+    uint64 va = r_stval();
+    if (va <= 0 || va >= MAXVA) {
+      p->killed = 1;
+      goto err;
+    }
+    pte_t *pte = walk(p->pagetable, va, 0);
+    if (pte == 0 || !(*pte & PTE_COW)) {
+      p->killed = 1;
+      goto err;
+    }
+
+    printf("%p\n", va);
+    uint64 flags = PTE_FLAGS(*pte);
+    flags = ((flags & ~PTE_COW) | PTE_W);
+    uint64 pa = PTE2PA(*pte);
+    char *mem;
+    if ((mem = kalloc()) == 0) {
+      p->killed = 1;
+      goto err;
+    }
+    memmove((void*)mem, (void*)pa, PGSIZE);
+    uvmunmap(p->pagetable, PGROUNDDOWN(va), 1, 1);
+    if (mappages(p->pagetable, va, PGSIZE, (uint64)mem, flags) < 0) {
+      kfree((void*)mem);
+      goto err;
+    }
   } else if((which_dev = devintr()) != 0){
     // ok
   } else {
@@ -73,6 +100,7 @@ usertrap(void)
     p->killed = 1;
   }
 
+err:
   if(p->killed)
     exit(-1);
 
