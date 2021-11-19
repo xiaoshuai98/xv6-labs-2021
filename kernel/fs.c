@@ -173,7 +173,7 @@ bfree(int dev, uint b)
 
 struct {
   struct spinlock lock;
-  struct inode inode[NINODE+2];
+  struct inode inode[NINODE];
 } itable;
 
 void
